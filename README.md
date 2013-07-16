@@ -1,4 +1,6 @@
-Keyboard
+Commander
 ========
 
-A substantial keyboard event mapper based on Mousetrap and inspired by Sublime.
+A command mapper for `Substance.Views`.
+
+- `Command.Keyboard` is a keyboard event mapper based on Mousetrap and inspired by Sublime.
