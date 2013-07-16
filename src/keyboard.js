@@ -3,13 +3,9 @@
 var Mousetrap = root.Mousetrap;
 
 var Keyboard = function(mainControl) {
-
   this.__bindings = {};
-
   this.__mainControl = mainControl;
-  this.__contexts = [];
   this.__controls = [];
-
 };
 
 Keyboard.__prototype__ = function() {
@@ -19,32 +15,36 @@ Keyboard.__prototype__ = function() {
   // --------
   //
 
-  function __registerBindings(b1, b2) {
-    if (b2.commands) {
-      if (b1.commands === undefined) b1.commands = [];
-      b1.commands = b1.commands.concat(b2.commands);
+  function __registerBindings(self, definition) {
+    var path = definition.context.split(".");
+    var context = self.__bindings;
+
+    // prepare the hierarchical data structure
+    for (var i = 0; i < path.length; i++) {
+      var c = path[i];
+      context.contexts = context.contexts || {};
+      context.contexts[c] = context.contexts[c] || {};
+      context = context.contexts[c];
     }
 
-    if (b2.contexts) {
-      b1.contexts = b1.contexts || {};
-
-      for(var context in b2.contexts) {
-        b1.contexts[context] = b1.contexts[context] || {};
-        __registerBindings(b1.contexts[context], b2.contexts[context]);
-      }
-    }
+    // add the commands into the given context
+    context.commands = context.commands || [];
+    context.commands = context.commands.concat(definition.commands);
   }
 
 
   function __createCallback(control, command, args) {
-    return function() {
+    return function(e) {
       control[command].apply(control, args);
+      e.preventDefault();
     };
   }
 
-  function __bind(control, bindings) {
-    for (var i = 0; i < bindings.commands.length; i++) {
-      var command = bindings.commands[i];
+  function __bind(control, commands) {
+    if (commands === undefined) return;
+
+    for (var i = 0; i < commands.length; i++) {
+      var command = commands[i];
       Mousetrap.bind(command.keys, __createCallback(control, command.command, command.args));
     }
   }
@@ -55,24 +55,23 @@ Keyboard.__prototype__ = function() {
     Mousetrap.reset();
 
     // TODO build active key mappings from registered bindings
-    var contexts = self.__contexts;
     var controls = self.__controls;
 
-    __bind(self.__mainControl, self.__bindings);
+    __bind(self.__mainControl, self.__bindings.commands);
 
     var context, control,
         bindings = self.__bindings;
 
-    for (var i = 0; i < contexts.length; i++) {
-      context = contexts[i];
-      control = controls[i];
+    for (var i = 0; i < controls.length; i++) {
+      context = controls[i][0];
+      control = controls[i][1];
 
       if (bindings.contexts === undefined || bindings.contexts[context] === undefined) {
         break;
       }
 
       bindings = bindings.contexts[context];
-      __bind(control, bindings);
+      __bind(control, bindings.commands);
     }
   }
 
@@ -81,7 +80,11 @@ Keyboard.__prototype__ = function() {
   //
 
   this.registerBindings = function(definition) {
-    __registerBindings(this.__bindings, definition);
+    console.log("Keyboard.registerBindings: definition=", definition);
+    for (var i = 0; i < definition.length; i++) {
+      var def = definition[i];
+      __registerBindings(this, def);
+    }
   };
 
   // Updates the keyboard bindings after application state changes.
@@ -89,17 +92,10 @@ Keyboard.__prototype__ = function() {
   //
 
   this.stateChanged = function() {
+    console.log("Keyboard.stateChanged()");
     // controllers are structured in hierarchical contexts
     // having one controller taking responsibility for each context.
-    var controls = this.__mainControl.getActiveControls();
-    var contexts = [];
-
-    for (var i = 0; i < controls.length; i++) {
-      contexts.push(controls[i].id);
-    }
-
-    this.__controls = controls;
-    this.__contexts = contexts;
+    this.__controls = this.__mainControl.getActiveControllers();
     __createBindings(this);
   };
 
@@ -110,9 +106,7 @@ Keyboard.__prototype__ = function() {
   // until `exit(context)` is called or the application state is changed.
 
   this.enter = function(context, control) {
-    this.__contexts.push(context);
-    this.__controls.push(control);
-
+    this.__controls.push([context, control]);
     __createBindings(this);
   };
 
@@ -121,13 +115,17 @@ Keyboard.__prototype__ = function() {
   //
 
   this.exit = function(context) {
-    var pos = this.__contexts.indexOf(context);
+    var pos = -1;
+    for (var i = this.__controls.length - 1; i >= 0; i--) {
+      if (this.__controls[i][0] === context) {
+        pos = i;
+        break;
+      }
+    }
     if (pos < 0) {
       throw new Error("Unknown context: " + context, ", expected one of: " + JSON.stringify(this.__contexts));
     }
-    this.__contexts = this.__contexts.slice(0, pos);
     this.__controls = this.__controls.slice(0, pos);
-
     __createBindings(this);
   };
 
