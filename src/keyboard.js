@@ -6,17 +6,16 @@ var Keyboard = function(mainControl) {
   this.__bindings = {};
   this.__mainControl = mainControl;
   this.__controls = [];
+  this.__defaultHandler = null;
 };
 
 Keyboard.__prototype__ = function() {
 
-  // Recursively merges the bindings defined in b2 into the
-  // (sub-)context specification b1
-  // --------
-  //
+  // keep the original key handler for delegation
+  var __handleKey = Mousetrap.handleKey;
 
-  function __registerBindings(self, definition) {
-    var path = definition.context.split(".");
+  function __getContext(self, pathStr) {
+    var path = pathStr.split(".");
     var context = self.__bindings;
 
     // prepare the hierarchical data structure
@@ -27,6 +26,11 @@ Keyboard.__prototype__ = function() {
       context = context.contexts[c];
     }
 
+    return context;
+  }
+
+  function __registerBindings(self, definition) {
+    var context = __getContext(self, definition.context);
     // add the commands into the given context
     context.commands = context.commands || [];
     context.commands = context.commands.concat(definition.commands);
@@ -49,18 +53,63 @@ Keyboard.__prototype__ = function() {
     }
   }
 
+  function __injectDefaultHandler(defaultHandlers) {
+    if (!defaultHandlers || defaultHandlers.length === 0) return;
+
+    var handleKey = function(character, modifiers, e) {
+      if (__handleKey(character, modifiers, e)) return;
+
+      for (var i = defaultHandlers.length - 1; i >= 0; i--) {
+        var item = defaultHandlers[i];
+
+        // the handler function must return a command specification that
+        // will be interpreted by the associated controller
+        var cmd = item.handler(character, modifiers, e);
+
+        // if the handler does not take care of the event
+        // cmd should be falsy
+        if (cmd) {
+          var control = item.control;
+          var command = cmd.command;
+          var args = cmd.args;
+          control[command].apply(control, args);
+
+          // we prevent the default behaviour and also bubbling through
+          // eventual parent default handlers.
+          //e.preventDefault();
+          return;
+        }
+      }
+    };
+
+    Mousetrap.handleKey = handleKey;
+  }
+
   function __createBindings(self) {
     // TODO: would be great to have Mousetrap more modular and create several immutable
     // versions which would be switched here
     Mousetrap.reset();
+    Mousetrap.handleKey = __handleKey;
+    var defaultHandlers = [];
+
+    function processBinding(context, control, bindings) {
+      __bind(control, bindings.commands);
+      if (bindings.default !== undefined) {
+        defaultHandlers.push({
+          context: context,
+          control: control,
+          handler: bindings.default
+        });
+      }
+    }
 
     // TODO build active key mappings from registered bindings
     var controls = self.__controls;
+    var bindings = self.__bindings;
+    var context = "";
+    var control = self.__mainControl;
 
-    __bind(self.__mainControl, self.__bindings.commands);
-
-    var context, control,
-        bindings = self.__bindings;
+    processBinding(context, control, bindings);
 
     for (var i = 0; i < controls.length; i++) {
       context = controls[i][0];
@@ -71,8 +120,10 @@ Keyboard.__prototype__ = function() {
       }
 
       bindings = bindings.contexts[context];
-      __bind(control, bindings.commands);
+      processBinding(context, control, bindings);
     }
+
+    __injectDefaultHandler(defaultHandlers);
   }
 
   // Registers bindings declared in the definition.
@@ -85,6 +136,11 @@ Keyboard.__prototype__ = function() {
       var def = definition[i];
       __registerBindings(this, def);
     }
+  };
+
+  this.setDefaultHandler = function(contextStr, handler) {
+    var context = __getContext(this, contextStr);
+    context.default = handler;
   };
 
   // Updates the keyboard bindings after application state changes.
