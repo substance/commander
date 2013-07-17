@@ -37,9 +37,13 @@ Keyboard.__prototype__ = function() {
   }
 
 
-  function __createCallback(control, command, args) {
+  function __createCallback(control, commandSpec) {
     return function(e) {
-      control[command].apply(control, args);
+      var obj = control;
+      if (commandSpec.scope) {
+        obj = control[commandSpec.scope];
+      }
+      obj[commandSpec.command].apply(obj, commandSpec.args);
       e.preventDefault();
     };
   }
@@ -49,7 +53,7 @@ Keyboard.__prototype__ = function() {
 
     for (var i = 0; i < commands.length; i++) {
       var command = commands[i];
-      Mousetrap.bind(command.keys, __createCallback(control, command.command, command.args));
+      Mousetrap.bind(command.keys, __createCallback(control, command));
     }
   }
 
