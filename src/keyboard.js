@@ -36,15 +36,17 @@ Keyboard.__prototype__ = function() {
     context.commands = context.commands.concat(definition.commands);
   }
 
-
   function __createCallback(control, commandSpec) {
+    var obj = control;
+    if (commandSpec.scope) {
+      obj = control[commandSpec.scope];
+    }
+    // default is preventing the default
+    var preventDefault = (commandSpec.preventDefault !== "false");
+
     return function(e) {
-      var obj = control;
-      if (commandSpec.scope) {
-        obj = control[commandSpec.scope];
-      }
       obj[commandSpec.command].apply(obj, commandSpec.args);
-      e.preventDefault();
+      if (preventDefault) e.preventDefault();
     };
   }
 
