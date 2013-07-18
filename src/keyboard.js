@@ -142,6 +142,7 @@ Keyboard.__prototype__ = function() {
       var def = definition[i];
       __registerBindings(this, def);
     }
+    this.stateChanged();
   };
 
   this.setDefaultHandler = function(contextStr, handler) {
@@ -154,7 +155,6 @@ Keyboard.__prototype__ = function() {
   //
 
   this.stateChanged = function() {
-    console.log("Keyboard.stateChanged()");
     // controllers are structured in hierarchical contexts
     // having one controller taking responsibility for each context.
     this.__controls = this.__mainControl.getActiveControllers();
