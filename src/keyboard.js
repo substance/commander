@@ -1,6 +1,7 @@
-(function(root) { "use strict";
+"use strict";
 
-var Mousetrap = root.Mousetrap;
+require("../lib/mousetrap");
+var Mousetrap = window.Mousetrap;
 
 var Keyboard = function(mainControl) {
   this.__bindings = {};
@@ -194,10 +195,4 @@ Keyboard.__prototype__ = function() {
 };
 Keyboard.prototype = new Keyboard.__prototype__();
 
-if (typeof exports === 'undefined') {
-  root.Substance.Keyboard = Keyboard;
-} else {
-  module.exports = Keyboard;
-}
-
-})(this);
+module.exports = Keyboard;
