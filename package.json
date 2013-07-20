@@ -4,7 +4,7 @@
   "keywords": ["substance", "regular expression"],
   "author": "Oliver Buchtala",
   "contributors": ["Michael Aufreiter"],
-  "version": "0.1.0",
+  "version": "0.1.0-alpha",
   "repository": {
     "type": "git",
     "url": "https://github.com/substance/commander.git"
