@@ -192,6 +192,12 @@ Keyboard.__prototype__ = function() {
     __createBindings(this);
   };
 
+  // Supported flags:
+  // TRIGGER_PREFIX_COMBOS: trigger combos that are already part of other sequences (default: false)
+  this.set = function(prop, value) {
+    Mousetrap[prop] = value;
+  };
+
 };
 Keyboard.prototype = new Keyboard.__prototype__();
 
