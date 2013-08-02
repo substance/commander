@@ -1,0 +1,12 @@
+{
+  "name": "substance-commander",
+  "description": "A command mapper for `Substance.Views`.",
+  "keywords": ["substance", "regular expression"],
+  "author": "Oliver Buchtala",
+  "contributors": ["Michael Aufreiter"],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/substance/commander.git"
+  },
+  "version": "0.1.0",
+}
