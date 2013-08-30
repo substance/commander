@@ -10,7 +10,7 @@ var Keyboard = function(mainControl) {
   this.__defaultHandler = null;
 };
 
-Keyboard.__prototype__ = function() {
+Keyboard.Prototype = function() {
 
   // keep the original key handler for delegation
   var __handleKey = Mousetrap.handleKey;
@@ -199,6 +199,6 @@ Keyboard.__prototype__ = function() {
   };
 
 };
-Keyboard.prototype = new Keyboard.__prototype__();
+Keyboard.prototype = new Keyboard.Prototype();
 
 module.exports = Keyboard;
