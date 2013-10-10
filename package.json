@@ -3,7 +3,7 @@
   "description": "A command mapper for `Substance.Views`.",
   "keywords": [
     "substance",
-    "regular expression"
+    "keyboard"
   ],
   "author": "Oliver Buchtala",
   "contributors": [
@@ -13,7 +13,7 @@
     "type": "git",
     "url": "https://github.com/substance/commander.git"
   },
-  "version": "0.1.1",
+  "version": "0.1.0",
   "engines": {
     "node": ">=0.8.x",
     "npm": ">=1.1.x"
