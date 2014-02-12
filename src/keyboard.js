@@ -438,23 +438,23 @@ Keyboard.Prototype = function() {
    */
   function _fireCallback(callback, e, combo) {
 
-      // if this event should not happen stop here
-      if (this.NOT_IN_EDITABLES && this.stopCallback(e, e.target || e.srcElement, combo)) {
-           return;
+    // if this event should not happen stop here
+    if (this.NOT_IN_EDITABLES && this.stopCallback(e, e.target || e.srcElement, combo)) {
+         return;
+    }
+
+    if (callback.call(callback.self, e, combo) === false) {
+      if (e.preventDefault) {
+        e.preventDefault();
       }
 
-      if (callback.call(this, e, combo) === false) {
-          if (e.preventDefault) {
-              e.preventDefault();
-          }
-
-          if (e.stopPropagation) {
-              e.stopPropagation();
-          }
-
-          e.returnValue = false;
-          e.cancelBubble = true;
+      if (e.stopPropagation) {
+        e.stopPropagation();
       }
+
+      e.returnValue = false;
+      e.cancelBubble = true;
+    }
   }
 
   /**
@@ -847,14 +847,15 @@ Keyboard.Prototype = function() {
    * @param {string=} action - 'keypress', 'keydown', or 'keyup'
    * @returns void
    */
-  this.bind = function(keys, callback, action) {
+  this.bind = function(keys, callback, action, self) {
+    callback.self = self;
     keys = (keys instanceof Array) ? keys : [keys];
     _bindMultiple.call(this, keys, callback, action);
     return this;
   };
 
-  this.bindMapped = function(alias, callback, action) {
-    return this.bind(this.keymap[alias], callback, action);
+  this.bindMapped = function(alias, callback, action, self) {
+    return this.bind(this.keymap[alias], callback, action, self);
   };
 
   /**
