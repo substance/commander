@@ -37,12 +37,12 @@ var ChromeKeyboard = function(map, keytable) {
 ChromeKeyboard.Prototype = function() {
 
   // handler to pass events (does not call prevent default)
-  var PASS = function() {
-    console.log('Keyboard: passing event to parent.');
+  this.PASS = function() {
+    // console.log('Keyboard: passing event to parent.');
   };
 
-  var BLOCK = function(e) {
-    console.log('Keyboard: blocking event.');
+  this.BLOCK = function(e) {
+    // console.log('Keyboard: blocking event.');
     e.preventDefault();
   };
 
@@ -102,10 +102,9 @@ ChromeKeyboard.Prototype = function() {
         handler(e);
       }
     } else if (this.defaultHandler) {
-      return this.defaultHandler(e);
-    }
+      this.defaultHandler(e);
+    } else this.BLOCK(e);
 
-    return BLOCK(e);
   };
 
   this.handleKey = function(type, e) {
@@ -118,9 +117,9 @@ ChromeKeyboard.Prototype = function() {
         console.log("... found handler", handler);
         return handler(e);
       }
-    }
-
-    return BLOCK(e);
+    } else if (this.defaultHandler) {
+      this.defaultHandler(e);
+    } else this.BLOCK(e);
   };
 
   this.connect = function(el) {
@@ -230,9 +229,9 @@ ChromeKeyboard.Prototype = function() {
     } else {
       combinations = [combination];
     }
-    this.bindAll(combinations, "keyup", PASS);
-    this.bindAll(combinations, "keydown", PASS);
-    this.bindAll(combinations, "keypress", PASS);
+    this.bindAll(combinations, "keyup", this.PASS);
+    this.bindAll(combinations, "keydown", this.PASS);
+    this.bindAll(combinations, "keypress", this.PASS);
   };
 
   this.compileMapping = function(name) {
