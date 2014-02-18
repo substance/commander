@@ -18,10 +18,13 @@ function _detachListener(el, type, callback) {
   }
 }
 
-var ChromeKeyboard = function(keytable) {
+var ChromeKeyboard = function(map, keytable) {
+
+  this.keytable = keytable;
+  this.map = map;
 
   this.registry = {};
-  this.keytable = keytable;
+
   if (!keytable) {
     var DefaultKeyTable =  require("./default_keytable.js");
     this.keytable = new DefaultKeyTable();
@@ -29,7 +32,6 @@ var ChromeKeyboard = function(keytable) {
 
   // to detect if there is a candidate for a given key
   this.__registeredKeyCodes = {"keypress": {}, "keyup": {}, "keydown": {}};
-
 };
 
 ChromeKeyboard.Prototype = function() {
@@ -59,6 +61,13 @@ ChromeKeyboard.Prototype = function() {
     'alt': 'altKey',
     'alt-gr': 'altGraphKey'
   };
+
+  var _inverseModNames = {};
+  _.each(_modName, function(mod, name) {
+    _inverseModNames[mod] = name;
+  });
+
+  console.log("_inverseModNames", _inverseModNames);
 
   this.defaultHandler = function(e) {
     console.log("Default handler: preventing event", e);
@@ -101,11 +110,12 @@ ChromeKeyboard.Prototype = function() {
 
   this.handleKey = function(type, e) {
     if (this.__registeredKeyCodes[type][e.keyCode]) {
-      console.log("Keyboard.handleKey", type, e.keyCode);
+      console.log("Keyboard.handleKey", type, this.describeEvent(e));
 
       var handler = _lookupHandler(this, e, this.registry[type]);
 
       if (handler) {
+        console.log("... found handler", handler);
         return handler(e);
       }
     }
@@ -121,6 +131,8 @@ ChromeKeyboard.Prototype = function() {
     _attachListener(el, 'keypress', this.__onKeyPress);
     _attachListener(el, 'keydown', this.__onKeyDown);
     _attachListener(el, 'keyup', this.__onKeyUp);
+
+    console.log("Attaching keyboard to", el, "bindings:", this.registry);
   };
 
   this.disconnect = function() {
@@ -140,7 +152,7 @@ ChromeKeyboard.Prototype = function() {
   // bind('ctrl', 'shift', 'r', myhandler);
   // TODO: I want to get rid of the type. Instead introduce an abstraction
   // that triggers key repetition using only one handler
-  this.bind0 = function(combination, type, handler) {
+  this.bindSingle = function(combination, type, handler) {
 
     if (["keypress", "keydown", "keyup"].indexOf(type) < 0) {
       throw new Error("Expecting keyboard event type as second argument.");
@@ -195,12 +207,57 @@ ChromeKeyboard.Prototype = function() {
     this.__registeredKeyCodes[type][keyCode] = true;
   };
 
-  this.pass = function(combination) {
-    this.bind0(combination, "keyup", PASS);
-    this.bind0(combination, "keydown", PASS);
-    this.bind0(combination, "keypress", PASS);
+  this.bindAll = function(combinations, type, handler) {
+    for (var i = 0; i < combinations.length; i++) {
+      this.bindSingle(combinations[i], type, handler);
+    }
   };
 
+  this.bind = function(combination, type, handler) {
+    var combinations;
+    if (_.isString(combination)) {
+      combinations = this.compileMapping(combination);
+      this.bindAll(combinations, type, handler);
+    } else {
+      this.bindSingle(combination, type, handler);
+    }
+  };
+
+  this.pass = function(combination) {
+    var combinations;
+    if (_.isString(combination)) {
+      combinations = this.compileMapping(combination);
+    } else {
+      combinations = [combination];
+    }
+    this.bindAll(combinations, "keyup", PASS);
+    this.bindAll(combinations, "keydown", PASS);
+    this.bindAll(combinations, "keypress", PASS);
+  };
+
+  this.compileMapping = function(name) {
+    var combinations = [];
+    var specs = this.map[name];
+    for (var i = 0; i < specs.length; i++) {
+      var spec = specs[i];
+      var combination = spec.split("+");
+      combinations.push(combination);
+    }
+    return combinations;
+  };
+
+  this.describeEvent = function(e) {
+    var names = [];
+    for (var i = 0; i < _mods.length; i++) {
+      var mod = _mods[i];
+      if (e[mod] === true) {
+        names.push(_inverseModNames[mod]);
+      }
+    }
+    names.push(this.keytable.getKeyName(e.keyCode));
+
+    return names.join("+");
+  };
 };
 ChromeKeyboard.prototype = new ChromeKeyboard.Prototype();
 

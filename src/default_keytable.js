@@ -73,6 +73,12 @@ DefaultKeyTable.Prototype = function() {
       "del": 46,
     });
 
+    this.inverseTable = {};
+    _.each(this.table, function(code, alias) {
+      this.inverseTable[code] = alias;
+    }, this);
+
+    console.log("INVERSE TABLE", this.inverseTable);
   };
 
   this.getKeyCode = function(s) {
@@ -80,6 +86,14 @@ DefaultKeyTable.Prototype = function() {
       return this.table[s];
     } else {
       throw new Error("Unknown key: " + s);
+    }
+  };
+
+  this.getKeyName = function(code) {
+    if (this.inverseTable[code] !== undefined) {
+      return this.inverseTable[code];
+    } else {
+      return "native("+code+")";
     }
   };
 };
