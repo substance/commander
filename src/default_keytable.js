@@ -3,19 +3,17 @@
 var _ = require("underscore");
 
 var DefaultKeyTable = function() {
-
-  this.initTable();
 };
 
 // TODO: we will just implement different versions of this for different browsers and platforms.
 DefaultKeyTable.Prototype = function() {
 
-  this.initTable = function() {
+  var initTable = function() {
     var i;
     this.table = {};
 
     // alphabet
-    for (i = 0; i < 25; i++) {
+    for (i = 0; i < 26; i++) {
       var code = i + 65;
       var u = String.fromCharCode(code).toUpperCase();
       var l = String.fromCharCode(code).toLowerCase();
@@ -79,7 +77,7 @@ DefaultKeyTable.Prototype = function() {
     }, this);
 
     console.log("INVERSE TABLE", this.inverseTable);
-  };
+  }.call(this);
 
   this.getKeyCode = function(s) {
     if (this.table[s] !== undefined) {

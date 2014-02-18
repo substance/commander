@@ -32,6 +32,12 @@ var ChromeKeyboard = function(map, keytable) {
 
   // to detect if there is a candidate for a given key
   this.__registeredKeyCodes = {"keypress": {}, "keyup": {}, "keydown": {}};
+
+  this.defaultHandlers = {
+    "keypress": this.PASS,
+    "keyup": this.BLOCK,
+    "keydown": this.PASS
+  };
 };
 
 ChromeKeyboard.Prototype = function() {
@@ -42,8 +48,9 @@ ChromeKeyboard.Prototype = function() {
   };
 
   this.BLOCK = function(e) {
-    // console.log('Keyboard: blocking event.');
+    console.log('Keyboard: blocking event.', e);
     e.preventDefault();
+    e.stopPropagation();
   };
 
   var _mods = ['ctrlKey', 'metaKey', 'shiftKey', 'altKey', 'altGraphKey'];
@@ -95,15 +102,21 @@ ChromeKeyboard.Prototype = function() {
   };
 
   this.handleKeyPress = function(e) {
+    var type = "keypress";
+    console.log("Keyboard keypress", e, this.describeEvent(e));
     // do not handle events without a character...
-    if (String.fromCharCode(e.which) && this.__registeredKeyCodes["keypress"][e.keyCode]) {
-      var handler = _lookupHandler(this, e, this.registry["keypress"]);
+    if (String.fromCharCode(e.which)) {
+      var handler = _lookupHandler(this, e, this.registry[type]);
       if (handler) {
         handler(e);
+      } else if (this.defaultHandlers[type]) {
+        this.defaultHandlers[type](e);
       }
-    } else if (this.defaultHandler) {
-      this.defaultHandler(e);
-    } else this.BLOCK(e);
+    } else if (this.defaultHandlers[type]) {
+      this.defaultHandlers[type](e);
+    } else {
+      throw new Error("No default handler for: " + type);
+    }
 
   };
 
@@ -117,9 +130,11 @@ ChromeKeyboard.Prototype = function() {
         console.log("... found handler", handler);
         return handler(e);
       }
-    } else if (this.defaultHandler) {
-      this.defaultHandler(e);
-    } else this.BLOCK(e);
+    } else if (this.defaultHandlers[type]) {
+      this.defaultHandlers[type](e);
+    } else {
+      throw new Error("No default handler for: " + type);
+    }
   };
 
   this.connect = function(el) {
@@ -140,8 +155,14 @@ ChromeKeyboard.Prototype = function() {
     _detachListener(this.el, 'keyup', this.__onKeyUp);
   };
 
-  this.setDefaultHandler = function(handler) {
-    this.defaultHandler = handler;
+  this.setDefaultHandler = function(type, handler) {
+    if (arguments.length === 1) {
+      _.each(this.defaultHandlers, function(__, name) {
+        this.defaultHandlers[name] = arguments[0];
+      }, this);
+    } else {
+      this.defaultHandlers[type] = handler;
+    }
   };
 
   // Bind a handler for a key combination.
