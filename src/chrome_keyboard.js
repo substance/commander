@@ -110,9 +110,9 @@ ChromeKeyboard.Prototype = function() {
       if (handler) {
         try {
           handler(e);
-        } catch (e) {
+        } catch (err) {
           this.BLOCK(e);
-          throw e;
+          throw err;
         }
       } else if (this.defaultHandlers[type]) {
         this.defaultHandlers[type](e);
@@ -135,9 +135,9 @@ ChromeKeyboard.Prototype = function() {
         //console.log("... found handler", handler);
         try {
           handler(e);
-        } catch (e) {
+        } catch (err) {
           this.BLOCK(e);
-          throw e;
+          throw err;
         }
       }
     } else if (this.defaultHandlers[type]) {
