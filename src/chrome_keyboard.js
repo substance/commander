@@ -78,7 +78,7 @@ ChromeKeyboard.Prototype = function() {
   //console.log("_inverseModNames", _inverseModNames);
 
   this.defaultHandler = function(e) {
-    console.log("Default handler: preventing event", e);
+    // console.log("Default handler: preventing event", e);
     e.preventDefault();
   };
 
@@ -129,7 +129,7 @@ ChromeKeyboard.Prototype = function() {
   };
 
   this.handleKey = function(type, e) {
-    console.log("Keyboard handleKey", type, this.describeEvent(e));
+    // console.log("Keyboard handleKey", type, this.describeEvent(e));
     if (this.__registeredKeyCodes[type][e.keyCode]) {
       //console.log("Keyboard.handleKey", type, this.describeEvent(e));
 
