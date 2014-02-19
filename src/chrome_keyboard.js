@@ -1,6 +1,7 @@
 "use strict";
 
 var _ = require("underscore");
+var util = require("substance-util");
 
 function _attachListener(el, type, callback) {
   if (el.addEventListener) {
@@ -112,6 +113,8 @@ ChromeKeyboard.Prototype = function() {
           handler(e);
         } catch (err) {
           this.BLOCK(e);
+          console.error(err.message);
+          util.printStackTrace(err);
           throw err;
         }
       } else if (this.defaultHandlers[type]) {
@@ -137,6 +140,8 @@ ChromeKeyboard.Prototype = function() {
           handler(e);
         } catch (err) {
           this.BLOCK(e);
+          console.error(err.message);
+          util.printStackTrace(err);
           throw err;
         }
       }
