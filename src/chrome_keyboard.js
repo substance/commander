@@ -5,7 +5,7 @@ var util = require("substance-util");
 
 function _attachListener(el, type, callback) {
   if (el.addEventListener) {
-    el.addEventListener(type, callback, false);
+    el.addEventListener(type, callback, true);
   } else {
     el.attachEvent('on' + type, callback);
   }
@@ -13,7 +13,7 @@ function _attachListener(el, type, callback) {
 
 function _detachListener(el, type, callback) {
   if (el.removeEventListener) {
-    el.removeEventListener(type, callback, false);
+    el.removeEventListener(type, callback, true);
   } else {
     el.detachEvent('on' + type, callback);
   }
@@ -129,6 +129,7 @@ ChromeKeyboard.Prototype = function() {
   };
 
   this.handleKey = function(type, e) {
+    console.log("Keyboard handleKey", type, this.describeEvent(e));
     if (this.__registeredKeyCodes[type][e.keyCode]) {
       //console.log("Keyboard.handleKey", type, this.describeEvent(e));
 
