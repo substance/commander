@@ -48,7 +48,7 @@ ChromeKeyboard.Prototype = function() {
   };
 
   this.BLOCK = function(e) {
-    console.log('Keyboard: blocking event.', e);
+    //console.log('Keyboard: blocking event.', e);
     e.preventDefault();
     e.stopPropagation();
   };
@@ -74,7 +74,7 @@ ChromeKeyboard.Prototype = function() {
     _inverseModNames[mod] = name;
   });
 
-  console.log("_inverseModNames", _inverseModNames);
+  //console.log("_inverseModNames", _inverseModNames);
 
   this.defaultHandler = function(e) {
     console.log("Default handler: preventing event", e);
@@ -103,7 +103,7 @@ ChromeKeyboard.Prototype = function() {
 
   this.handleKeyPress = function(e) {
     var type = "keypress";
-    console.log("Keyboard keypress", e, this.describeEvent(e));
+    //console.log("Keyboard keypress", e, this.describeEvent(e));
     // do not handle events without a character...
     if (String.fromCharCode(e.which)) {
       var handler = _lookupHandler(this, e, this.registry[type]);
@@ -122,12 +122,12 @@ ChromeKeyboard.Prototype = function() {
 
   this.handleKey = function(type, e) {
     if (this.__registeredKeyCodes[type][e.keyCode]) {
-      console.log("Keyboard.handleKey", type, this.describeEvent(e));
+      //console.log("Keyboard.handleKey", type, this.describeEvent(e));
 
       var handler = _lookupHandler(this, e, this.registry[type]);
 
       if (handler) {
-        console.log("... found handler", handler);
+        //console.log("... found handler", handler);
         return handler(e);
       }
     } else if (this.defaultHandlers[type]) {
@@ -146,7 +146,7 @@ ChromeKeyboard.Prototype = function() {
     _attachListener(el, 'keydown', this.__onKeyDown);
     _attachListener(el, 'keyup', this.__onKeyUp);
 
-    console.log("Attaching keyboard to", el, "bindings:", this.registry);
+    // console.log("Attaching keyboard to", el, "bindings:", this.registry);
   };
 
   this.disconnect = function() {

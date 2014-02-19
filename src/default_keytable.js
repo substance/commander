@@ -76,7 +76,7 @@ DefaultKeyTable.Prototype = function() {
       this.inverseTable[code] = alias;
     }, this);
 
-    console.log("INVERSE TABLE", this.inverseTable);
+    // console.log("INVERSE TABLE", this.inverseTable);
   }.call(this);
 
   this.getKeyCode = function(s) {
