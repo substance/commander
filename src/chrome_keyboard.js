@@ -108,7 +108,12 @@ ChromeKeyboard.Prototype = function() {
     if (String.fromCharCode(e.which)) {
       var handler = _lookupHandler(this, e, this.registry[type]);
       if (handler) {
-        handler(e);
+        try {
+          handler(e);
+        } catch (e) {
+          this.BLOCK(e);
+          throw e;
+        }
       } else if (this.defaultHandlers[type]) {
         this.defaultHandlers[type](e);
       }
@@ -128,7 +133,12 @@ ChromeKeyboard.Prototype = function() {
 
       if (handler) {
         //console.log("... found handler", handler);
-        return handler(e);
+        try {
+          handler(e);
+        } catch (e) {
+          this.BLOCK(e);
+          throw e;
+        }
       }
     } else if (this.defaultHandlers[type]) {
       this.defaultHandlers[type](e);
