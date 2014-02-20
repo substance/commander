@@ -32,7 +32,7 @@ DefaultKeyTable.Prototype = function() {
     }
 
     // special characters
-    _.extend(this.table, {
+    _.extend(this.table, {
       "*": 106,
       "+": 107,
       "-": 109,
