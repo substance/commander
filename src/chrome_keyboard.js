@@ -96,7 +96,11 @@ ChromeKeyboard.Prototype = function() {
     }
 
     if (reg) {
-      return reg[e.keyCode];
+      var keyCode = e.keyCode;
+      if (e.type === "keypress") {
+         keyCode = e.keyCode || self.keytable.table[String.fromCharCode(e.which)];
+      }
+      return reg[keyCode];
     } else {
       return null;
     }
