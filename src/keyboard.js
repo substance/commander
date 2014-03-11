@@ -111,7 +111,7 @@ var _SPECIAL_ALIASES = {
     'command': 'meta',
     'return': 'enter',
     'escape': 'esc',
-    'mod': /Mac|iPod|iPhone|iPad/.test(navigator.platform) ? 'meta' : 'ctrl'
+    'mod': /Mac|iPod|iPhone|iPad/.test(window.navigator.platform) ? 'meta' : 'ctrl'
 };
 
 /**
