@@ -278,6 +278,10 @@ ChromeKeyboard.Prototype = function() {
   this.compileMapping = function(name) {
     var combinations = [];
     var specs = this.map[name];
+    if (!specs) {
+      console.error("No keyboard mappings available for", name);
+      return combinations;
+    }
     for (var i = 0; i < specs.length; i++) {
       var spec = specs[i];
       var combination = spec.split("+");
