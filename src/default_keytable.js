@@ -45,7 +45,8 @@ DefaultKeyTable.Prototype = function() {
       "[": 219,
       "\\": 220,
       "]": 221,
-      "\"": 222
+      "\"": 222,
+      "special": 229
     });
 
     // custom aliases
