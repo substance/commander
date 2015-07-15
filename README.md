@@ -1,5 +1,7 @@
-Commander
+Substance Commander
 ========
+
+**No longer maintained. Use http://github.com/substance/substance instead.**
 
 A command mapper for `Substance.Views`.
 
